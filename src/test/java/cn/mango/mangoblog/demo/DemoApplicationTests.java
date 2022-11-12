@@ -1,11 +1,11 @@
 package cn.mango.mangoblog.demo;
 
-import cn.mango.mangoblog.application.DemoApplication;
+import cn.mango.mangoblog.application.MangoBlogApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-@SpringBootTest(classes = DemoApplication.class)
+@SpringBootTest(classes = MangoBlogApplication.class)
 class DemoApplicationTests {
 
 	@Test

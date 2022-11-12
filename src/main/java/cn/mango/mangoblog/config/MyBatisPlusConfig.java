@@ -6,6 +6,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan("com.example.mapper")
+@MapperScan("cn.mango.mangoblog.mapper")
 public class MyBatisPlusConfig {
 }
