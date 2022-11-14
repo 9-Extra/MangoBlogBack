@@ -1,14 +1,18 @@
 package cn.mango.mangoblog.restserver;
 
+import cn.mango.mangoblog.entity.LoginMessage;
 import cn.mango.mangoblog.runtime.UserServiceImpl;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.User;
 import cn.mango.mangoblog.mapper.UserMapper;
+import cn.mango.mangoblog.utils.TokenUtils;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -25,7 +29,20 @@ public class UserController {
     private UserServiceImpl userService;
 
     @PostMapping("/register")
-    public ResultWrapper<Boolean> registerUser(@RequestBody User user){
+    public ResultWrapper<Long> registerUser(@RequestBody User user){
         return userService.registerUser(user);
+    }
+
+    @PostMapping("/login")
+    public ResultWrapper<String> login(@RequestParam(value = "authorization", required = false) String token, @RequestBody LoginMessage loginMessage){
+        Optional<DecodedJWT> decodedJWT = TokenUtils.verify(token);
+        if (!decodedJWT.isEmpty()){
+            DecodedJWT decodedJWT1 = decodedJWT.get();
+            Long id = decodedJWT1.getClaim("user_id").asLong();
+            if (id == loginMessage.id){
+                return new ResultWrapper<>(500, "重复登录", token);
+            }
+        }
+        return userService.login_check(loginMessage.id, loginMessage.password);
     }
 }

@@ -1,5 +1,8 @@
 package cn.mango.mangoblog.runtime;
 
+import cn.mango.mangoblog.utils.TokenUtils;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.User;
@@ -8,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Primary
 @Service
@@ -40,14 +46,32 @@ public class UserServiceImpl{
         return new ResultWrapper<>(true);
     }
 
-    public ResultWrapper<Boolean> registerUser(User user){
+    public ResultWrapper<Long> registerUser(User user){
         QueryWrapper<User> qw = new QueryWrapper<>();
         qw.eq("id", user.getId());
         if (userMapper.exists(qw)){
-            return new ResultWrapper<>(500, "Id already exist", false);
+            return new ResultWrapper<>(500, "账号重复", null);
         }
         userMapper.insert(user);
+        //写入数据库后新的id就存在user里
 
-        return new ResultWrapper<>(true);
+        return new ResultWrapper<>(0, "注册成功", user.getId());
+    }
+
+    public ResultWrapper<String> login_check(long id, String password){
+        QueryWrapper<User> qw = new QueryWrapper<>();
+        qw.eq("id", id);
+        List<User> users = userMapper.selectList(qw);
+        if (users.isEmpty()){
+            return new ResultWrapper<>(600, "账号不存在", "");
+        }
+        User user = users.get(0);
+        if (password == null || !Objects.equals(user.getPassword(), password)){
+            return new ResultWrapper<>(600, "密码错误", "");
+        }
+
+        String token = TokenUtils.gen_token(user);
+
+        return new ResultWrapper<>(token);
     }
 }

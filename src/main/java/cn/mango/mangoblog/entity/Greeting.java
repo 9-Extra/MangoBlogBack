@@ -1,4 +1,4 @@
-package cn.mango.mangoblog.restserver;
+package cn.mango.mangoblog.entity;
 
 public class Greeting {
     private final long id;
