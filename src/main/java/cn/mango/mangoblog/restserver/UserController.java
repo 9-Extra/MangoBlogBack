@@ -21,7 +21,7 @@ public class UserController {
     private UserMapper userMapper;
 
     @GetMapping("/users")
-    public List<User> getUsers(ModelMap map){
+    public List<User> getUsers(ModelMap map) {
         return userMapper.selectList(null);
     }
 
@@ -29,19 +29,15 @@ public class UserController {
     private UserServiceImpl userService;
 
     @PostMapping("/register")
-    public ResultWrapper<Long> registerUser(@RequestBody User user){
+    public ResultWrapper<Long> registerUser(@RequestBody User user) {
         return userService.registerUser(user);
     }
 
     @PostMapping("/login")
-    public ResultWrapper<String> login(@RequestParam(value = "authorization", required = false) String token, @RequestBody LoginMessage loginMessage){
-        Optional<DecodedJWT> decodedJWT = TokenUtils.verify(token);
-        if (!decodedJWT.isEmpty()){
-            DecodedJWT decodedJWT1 = decodedJWT.get();
-            Long id = decodedJWT1.getClaim("user_id").asLong();
-            if (id == loginMessage.id){
-                return new ResultWrapper<>(500, "重复登录", token);
-            }
+    public ResultWrapper<String> login(@RequestParam(value = "authorization", required = false) String token, @RequestBody LoginMessage loginMessage) {
+        Long id = TokenUtils.Verify(token).getData();//获取用户id
+        if (id == loginMessage.id) {
+            return new ResultWrapper<>(500, "重复登录", token);
         }
         return userService.login_check(loginMessage.id, loginMessage.password);
     }

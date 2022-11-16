@@ -17,8 +17,9 @@ public class BlogOperation {
         this.blog = blog;
         this.operation = operation;
     }
-
-    public static final String OPERATION_NEW = "new";
+    public static final String OPERATION_NEW = "new";//新建空白Blog
+    public static final String OPERATION_SAVE = "save";//保存到草稿箱
+    public static final String OPERATION_POST="post";//发布blog
     public static final String OPERATION_MODIFY = "edit";
     public static final String OPERATION_DELETE = "delete";
 }

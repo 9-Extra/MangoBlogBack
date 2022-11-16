@@ -18,7 +18,7 @@ public class BlogServiceImpl {
 
     private BlogMapper blogMapper;
     //获取Blog
-    public ResultWrapper<Blog> getBlog(Long id){
+    public ResultWrapper<Blog> GetBlogById(Long id){
         //查询构造器
         QueryWrapper<Blog> qw = new QueryWrapper<>();
         qw.eq("id", id);
@@ -30,20 +30,41 @@ public class BlogServiceImpl {
     }
 
     //插入blog并返回blog_id
-    public boolean insertBlog(Blog blog){
-        return blogMapper.insert(blog) == 1;//返回值1表示插入成功
+    public ResultWrapper<Long> insertBlog(Blog blog){
+
+        if(blogMapper.insert(blog)!=1) {//返回值1表示插入成功
+            return new ResultWrapper<>(200,"Failure",null);
+        }
+        else return new ResultWrapper<>(0,"Success",blog.getId());//成功则返回blog_id
+
     }
 
     //更新blog并返回blog_id
-    public boolean updateBlog(Blog blog){
-        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>(blog);
-        blogUpdateWrapper.set("id", blog.getId()).set("author_id", blog.getAuthor_id());
-        blogMapper.update(blog, blogUpdateWrapper);
-        return blogMapper.updateById(blog) == 1;
+    public boolean UpDateBlog(Blog blog){
+        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
+        blogUpdateWrapper.eq("id", blog.getId());
+        return blogMapper.update(blog, blogUpdateWrapper) == 1;
+    }
+
+    public boolean UpDateBlogStatus(Blog blog,Integer status){
+        blog.setStatus(status);
+        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
+        blogUpdateWrapper.eq("id", blog.getId());
+        return blogMapper.update(blog, blogUpdateWrapper) == 1;
     }
 
     //删除blog
     public boolean deleteBlog(Long id){
         return blogMapper.deleteById(id) == 1;
+    }
+
+    public ResultWrapper<List<Blog>> GetBlogByAuthorIdAndStauts(Long author_id,Integer status){
+        QueryWrapper<Blog> qw=new QueryWrapper<>();
+        qw.eq("author_id",author_id).eq("status",status);
+        List<Blog> result=blogMapper.selectList(qw);
+        if(result.isEmpty()){
+            return new ResultWrapper<>(400,"Not found",null);
+        }
+        return new ResultWrapper<>(0,"Success",result);
     }
 }
