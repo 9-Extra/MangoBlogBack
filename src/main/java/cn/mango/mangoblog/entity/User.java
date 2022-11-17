@@ -13,10 +13,18 @@ public class User {
     private String nick_name;
     private int age;
     private String password;
+    private Integer privilege;
 
     public User(Long id, String nick_name, int age, String password) {
         this.nick_name = nick_name;
         this.age = age;
         this.password = password;
+    }
+
+    public User(Integer privilege) {
+        this.privilege = privilege;
+    }
+    public User(){
+
     }
 }

@@ -1,6 +1,7 @@
 package cn.mango.mangoblog.restserver;
 
 import cn.mango.mangoblog.entity.LoginMessage;
+import cn.mango.mangoblog.entity.VerifyResult;
 import cn.mango.mangoblog.runtime.UserServiceImpl;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.User;
@@ -35,10 +36,29 @@ public class UserController {
 
     @PostMapping("/login")
     public ResultWrapper<String> login(@RequestParam(value = "authorization", required = false) String token, @RequestBody LoginMessage loginMessage) {
-        Long id = TokenUtils.Verify(token).getData();//获取用户id
-        if (id == loginMessage.id) {
-            return new ResultWrapper<>(500, "重复登录", token);
+        ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
+        VerifyResult verifyresultData = verifyResult.getData();
+        if (verifyresultData != null) {
+            Long id = verifyresultData.getId();
+            if (id == loginMessage.id) {
+                return new ResultWrapper<>(500, "重复登录", token);
+            }
         }
-        return userService.login_check(loginMessage.id, loginMessage.password);
+            return userService.login_check(loginMessage.id, loginMessage.password);
+    }
+
+    @PostMapping("/upgrade")
+    public ResultWrapper<Long> UpgradeUser(@RequestParam(value = "id",required = true)Long id,@RequestHeader(value = "authorization",required = true)String token){
+        ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
+        VerifyResult verifyresultData = verifyResult.getData();
+        if (verifyresultData == null)
+            return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
+        Integer privilege = verifyresultData.getPrivilege();
+        if(privilege!=2)
+            return new ResultWrapper<>(2,"invalid token",0L);
+        if(userService.UpdateUserPrivilege(id,1)){
+            return new ResultWrapper<>(0,"Success",null);
+        }
+        else return new ResultWrapper<>(400,"Invalid id",0L);
     }
 }

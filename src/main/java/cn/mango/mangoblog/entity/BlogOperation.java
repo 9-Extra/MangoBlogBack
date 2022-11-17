@@ -22,4 +22,5 @@ public class BlogOperation {
     public static final String OPERATION_POST="post";//发布blog
     public static final String OPERATION_MODIFY = "edit";
     public static final String OPERATION_DELETE = "delete";
+    public static final String OPERATION_REVOKE ="revoke";
 }

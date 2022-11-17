@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.User;
 import cn.mango.mangoblog.mapper.UserMapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -52,13 +53,14 @@ public class UserServiceImpl{
         if (userMapper.exists(qw)){
             return new ResultWrapper<>(500, "账号重复", null);
         }
+        user.setPrivilege(0);
         userMapper.insert(user);
         //写入数据库后新的id就存在user里
 
         return new ResultWrapper<>(0, "注册成功", user.getId());
     }
 
-    public ResultWrapper<String> login_check(long id, String password){
+    public ResultWrapper<String> login_check(Long id, String password){
         QueryWrapper<User> qw = new QueryWrapper<>();
         qw.eq("id", id);
         List<User> users = userMapper.selectList(qw);
@@ -73,5 +75,10 @@ public class UserServiceImpl{
         String token = TokenUtils.gen_token(user);
 
         return new ResultWrapper<>(token);
+    }
+    public Boolean UpdateUserPrivilege(Long id,Integer privilege){
+        UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.eq("id",id).set("privilege",privilege);
+        return userMapper.update(null,updateWrapper)==1;
     }
 }
