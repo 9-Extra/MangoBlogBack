@@ -4,6 +4,7 @@ import cn.mango.mangoblog.entity.Blog;
 import cn.mango.mangoblog.entity.BlogOperation;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.mapper.BlogMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +34,11 @@ public class BlogServiceImpl {
         //查询构造器
         QueryWrapper<Blog> qw = new QueryWrapper<>();
         qw.eq("id", id).eq("authorid",author_id);
-        List<Blog> result = blogMapper.selectList(qw);
-        if (result.isEmpty()) {
+        Blog result = blogMapper.selectOne(qw);
+        if (result == null) {
             return new ResultWrapper<>(400, "Not found", null);
         }
-        return new ResultWrapper<>(result.get(0));
+        return new ResultWrapper<>(result);
     }
 
     public ResultWrapper<Blog> GetOpenBlogById(Long id) {
@@ -83,40 +84,48 @@ public class BlogServiceImpl {
     }
 
     //插入blog并返回blog_id
-    public ResultWrapper<Long> insertBlog(Blog blog) {
-
+    public Long insertBlog(Blog blog) {
         if (blogMapper.insert(blog) != 1) {//返回值1表示插入成功
-            return new ResultWrapper<>(200, "Failure", null);
-        } else return new ResultWrapper<>(0, "Success", blog.getId());//成功则返回blog_id
+            return blog.getId();
+        } else {
+            return null;
+        }
 
     }
 
     //更新blog并返回blog_id
-    public boolean UpDateBlog(Blog blog) {
-        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog.getId());
-        return blogMapper.update(blog, blogUpdateWrapper) == 1;
+    public boolean UpDateBlog(Long blog_id, Long author_id, String description, String content) {
+        UpdateWrapper<Blog> uw = new UpdateWrapper<>();
+        uw.eq("id", blog_id).eq("authorid", author_id).set("description", description).set("content", content);
+        return blogMapper.update(null, uw) == 1;
     }
 
 
-
-    public  boolean UpDateBlogStatus(Blog blog, Integer status,Long user_id) {
-        blog.setStatus(status);
+    //以管理员权限，不修改博客内容，仅修改状态
+    public boolean upDateBlogStatusAdmin(Long blog_id, Integer status) {
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog.getId()).eq("authorid",user_id);
-        return blogMapper.update(blog, blogUpdateWrapper) == 1;
+        blogUpdateWrapper.eq("id", blog_id).set("status", status);
+        return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
 
-    public ResultWrapper<Long> UpdateBlogStatusByBlogOperation(BlogOperation operation,Integer status,Long user_id) {
-        Blog blog = operation.getBlog();
+
+    //以用户权限，不修改博客内容，仅修改状态
+    public boolean upDateBlogStatusUser(Long blog_id, Integer status, Long user_id) {
+        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
+        blogUpdateWrapper.eq("id", blog_id).eq("authorid",user_id).set("status", status);
+        return blogMapper.update(null, blogUpdateWrapper) == 1;
+    }
+    //仅查询blog的作者
+    public Long getBlogAuthor(Long blog_id){
+        LambdaQueryWrapper<Blog> qw = new LambdaQueryWrapper<>();
+        qw.eq(Blog::getId, blog_id).select(Blog::getAuthorid);
+
+        Blog blog = blogMapper.selectOne(qw);
         if (blog == null) {
-            return new ResultWrapper<>(500, "Empty blog", 0L);
+            return null;
+        } else {
+            return blog.getAuthorid();
         }
-        blog.setAuthorid(user_id);
-        if (UpDateBlogStatus(blog, status,user_id)) {
-            return new ResultWrapper<>(blog.getId());
-        }
-        else return new ResultWrapper<>(500,"Update blog failed,please check blog id",0L);
     }
 
     //删除blog

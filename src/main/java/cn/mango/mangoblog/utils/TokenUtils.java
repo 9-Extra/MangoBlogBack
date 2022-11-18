@@ -6,11 +6,12 @@ import cn.mango.mangoblog.entity.VerifyResult;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
 
 public class TokenUtils {
 
@@ -32,17 +33,21 @@ public class TokenUtils {
         return token;
     }
 
-
     public static ResultWrapper<VerifyResult> Verify(String token) {//校验token并返回user_id
         if (token == null || token.equals("")) {
             return new ResultWrapper<>(3, "Empty token", null);
         }
-        Optional<DecodedJWT> decodedJWT = Optional.of((VERIFIER.verify(token)));
-        if (decodedJWT.isEmpty()) {
-            return new ResultWrapper<>(2, "Invalid token", null);
-        } else {
-            VerifyResult verifyresult = new VerifyResult(decodedJWT.get().getClaim("user_id").asLong(), decodedJWT.get().getClaim("privilege").asInt());
-            return new ResultWrapper<>(0, "Success", verifyresult);
+        try {
+            DecodedJWT decodedJWT = VERIFIER.verify(token);
+            VerifyResult verifyresult = new VerifyResult(decodedJWT.getClaim("user_id").asLong(), decodedJWT.getClaim("privilege").asInt());
+            return new ResultWrapper<>(verifyresult);
+        } catch (TokenExpiredException e){
+            return new ResultWrapper<>(2, "Token过期了: " + e.getMessage(), null);
+        } catch (SignatureVerificationException e){
+            return new ResultWrapper<>(2, "Token签名不正确: " + e.getMessage(), null);
+        } catch (JWTVerificationException e) {
+            return new ResultWrapper<>(2, "Token错误: " + e.getMessage(), null);
         }
+
     }
 }
