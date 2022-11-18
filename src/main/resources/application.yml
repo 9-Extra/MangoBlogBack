@@ -2,7 +2,6 @@
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/mangoblog?useUnicode=true&characterEncoding=UTF-8
-
     username: root
     password:
   servlet: #文件上传相关
@@ -11,6 +10,11 @@ spring:
       #file-size-threshold: 0 #配置文件传输协议，都是使用默认值
       max-request-size: 100MB #设置单个请求大小
       max-file-size: 100MB #设置总数据大小
+  elasticsearch:
+    uris: 127.0.0.1:9200
+  logging:
+    level:
+      root: debug
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -1,18 +1,17 @@
 package cn.mango.mangoblog.restserver;
 
-import cn.mango.mangoblog.entity.LoginMessage;
-import cn.mango.mangoblog.entity.VerifyResult;
+import cn.mango.mangoblog.entity.*;
 import cn.mango.mangoblog.runtime.UserServiceImpl;
-import cn.mango.mangoblog.entity.ResultWrapper;
-import cn.mango.mangoblog.entity.User;
 import cn.mango.mangoblog.mapper.UserMapper;
 import cn.mango.mangoblog.utils.TokenUtils;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -60,5 +59,21 @@ public class UserController {
             return new ResultWrapper<>(0,"Success",null);
         }
         else return new ResultWrapper<>(400,"Invalid id",0L);
+    }
+
+    @PostMapping("/me")//用户查看自己的信息
+    public ResultWrapper<User> getMySelf(@RequestHeader(value = "authorization",required = true)String token){
+        ResultWrapper<VerifyResult> verifyResultResultWrapper=TokenUtils.Verify(token);
+        if(verifyResultResultWrapper.getCode()!=0)
+            return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
+        Long user_id=verifyResultResultWrapper.getData().getId();
+//        List<Blog> blogList= blogMapper.selectList(Wrappers.<Blog>lambdaQuery().eq(Blog::getId,blog_id).eq(Blog::getAuthorid,user_id));
+        List<User> UserList=userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getId,user_id));
+        if(UserList.isEmpty()){
+            return new ResultWrapper<>(2,"Invalid token",null);
+        }
+        User user=UserList.get(0);
+        user.setPassword(null);
+        return new ResultWrapper<>(0,"Success",user);
     }
 }

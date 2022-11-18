@@ -74,7 +74,7 @@ public class UserServiceImpl{
 
         String token = TokenUtils.gen_token(user);
 
-        return new ResultWrapper<>(token);
+        return new ResultWrapper<>(0,"Success",token);
     }
     public Boolean UpdateUserPrivilege(Long id,Integer privilege){
         UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();

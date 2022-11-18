@@ -116,7 +116,7 @@ public class BlogController {
                 if (!BlogServiceImpl.deleteBlog(operation.getBlog_id(),user_id)) {
                     return new ResultWrapper<>(500, "删除博客失败", 0L);
                 } else {
-                    String path = System.getProperty("user.dir") + "/image/upload/" + id;//blog中图片的文件夹路径
+                    String path = System.getProperty("user.dir") + "/image/upload/" + user_id+id;//blog中图片的文件夹路径
                     FileUtils.Delete(path);//删除文件夹
                     return new ResultWrapper<>(operation.getBlog_id());
                 }
