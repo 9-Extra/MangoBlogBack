@@ -72,7 +72,7 @@ public class BlogController {
                 ResultWrapper<List<Blog>> result = BlogServiceImpl.GetBlogsByAuthorIdAndStauts(user_id, 0);//查询该用户是否有空白blog
                 //如果没有，则创建空白blog，status置为0
                 if (result.getData() == null) {
-                    Blog blog = new Blog(user_id, 0);
+                    Blog blog = new Blog(0L, user_id, 0);
                     return BlogServiceImpl.insertBlog(blog);
                 } else return new ResultWrapper<>(0, "Success", result.getData().get(0).getId());//data为blog_id
             }

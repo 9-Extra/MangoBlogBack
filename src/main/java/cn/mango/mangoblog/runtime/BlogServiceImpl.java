@@ -112,6 +112,7 @@ public class BlogServiceImpl {
         if (blog == null) {
             return new ResultWrapper<>(500, "Empty blog", 0L);
         }
+        blog.setAuthorid(user_id);
         if (UpDateBlogStatus(blog, status,user_id)) {
             return new ResultWrapper<>(blog.getId());
         }

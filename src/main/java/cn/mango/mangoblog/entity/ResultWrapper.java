@@ -15,7 +15,7 @@ public class ResultWrapper<T> {
     }
 
     public ResultWrapper(T data){
-        this.code = 200;
+        this.code = 0;
         this.message = "Success";
         this.data = data;
     }
