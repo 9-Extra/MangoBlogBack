@@ -73,19 +73,15 @@ public class BlogServiceImpl {
 //    }
 
 
-    public ResultWrapper<List<Blog>> GetBlogsByAuthorIdAndStauts(Long author_id, Integer status) {
+    public List<Blog> GetBlogsByAuthorIdAndStauts(Long author_id, Integer status) {
         QueryWrapper<Blog> qw = new QueryWrapper<>();
         qw.eq("authorid", author_id).eq("status", status);
-        List<Blog> result = blogMapper.selectList(qw);
-        if (result.isEmpty()) {
-            return new ResultWrapper<>(400, "Not found", null);
-        }
-        return new ResultWrapper<>(0, "Success", result);
+        return blogMapper.selectList(qw);
     }
 
     //插入blog并返回blog_id
     public Long insertBlog(Blog blog) {
-        if (blogMapper.insert(blog) != 1) {//返回值1表示插入成功
+        if (blogMapper.insert(blog) == 1) {//返回值1表示插入成功
             return blog.getId();
         } else {
             return null;
@@ -96,7 +92,16 @@ public class BlogServiceImpl {
     //更新blog并返回blog_id
     public boolean UpDateBlog(Long blog_id, Long author_id, String description, String content) {
         UpdateWrapper<Blog> uw = new UpdateWrapper<>();
-        uw.eq("id", blog_id).eq("authorid", author_id).set("description", description).set("content", content);
+        uw.eq("id", blog_id)
+                .eq("authorid", author_id)
+                .eq("status", 0)
+                .set("status", 1);
+        blogMapper.update(null, uw);
+        uw.clear();
+        uw.eq("id", blog_id)
+                .eq("authorid", author_id)
+                .set("description", description)
+                .set("content", content);
         return blogMapper.update(null, uw) == 1;
     }
 
@@ -111,6 +116,9 @@ public class BlogServiceImpl {
 
     //以用户权限，不修改博客内容，仅修改状态
     public boolean upDateBlogStatusUser(Long blog_id, Integer status, Long user_id) {
+        if (status == 0){
+            return false;//不可以将博客修改为新建状态
+        }
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
         blogUpdateWrapper.eq("id", blog_id).eq("authorid",user_id).set("status", status);
         return blogMapper.update(null, blogUpdateWrapper) == 1;

@@ -45,7 +45,7 @@ public class BlogController {
 
     @GetMapping("/open/blogs")//用户查看某个作者的所有blog
     public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId (@RequestParam(value = "id",required = true)Long id){
-        return blogService.GetBlogsByAuthorIdAndStauts(id,2);
+        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id,2));
     }
 
     private ResultWrapper<Long> change_blog_state(long blog_id, long user_id, Integer status, long privilege){
@@ -84,8 +84,8 @@ public class BlogController {
         //开始执行操作
         switch (operation.getOperation()) {
             case BlogOperation.OPERATION_NEW -> {
-                ResultWrapper<List<Blog>> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, 0);//查询该用户是否有空白blog
-                if (result.getData().isEmpty()) {
+                List<Blog> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, 0);//查询该用户是否有空白blog
+                if (result.isEmpty()) {
                     //创建空白blog，status置为0
                     Blog blog = new Blog(0L, user_id, 0, "默认描述", "# 请在此输入内容");
                     Long id = blogService.insertBlog(blog);
@@ -94,7 +94,7 @@ public class BlogController {
                     }
                     return new ResultWrapper<>(id);
                 } else {
-                    return new ResultWrapper<>(0, "Success", result.getData().get(0).getId());//data为blog_id
+                    return new ResultWrapper<>(0, "Success", result.get(0).getId());//data为blog_id
                 }
             }
             case BlogOperation.OPERATION_SAVE-> {
