@@ -51,11 +51,12 @@ public class FileController {
         return new ResultWrapper<>(0,"Success",result);
     }
     //图片下载
-    @PostMapping("/image/download")//下载blog中图片
-    public ResultWrapper<OutputStream> imageDownload(HttpServletResponse resp, @RequestParam(value = "url", required = false) String url,@RequestParam(value = "id",required = false)Long id)  {
+    @GetMapping("/image/download/")//下载blog中图片
+    public ResultWrapper<OutputStream> imageDownload(HttpServletResponse resp, @RequestParam(value = "url", required = false) String url)  {
+
         resp.setContentType(MediaType.ALL_VALUE);//IMAGE_PNG_VALUE
         try {
-            return FileUtils.Download(resp.getOutputStream(), url,id);
+            return FileUtils.Download(resp.getOutputStream(), url);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResultWrapper<>(800,"HttpServletResponse.getOutputStream failed",null);
