@@ -79,6 +79,10 @@ public class BlogController {
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
 
         long user_id = verifyresultData.getId();//以token中的id为最终user_id
+        if (operation.getBlog_id() == null){
+            return new ResultWrapper<>(3, "必须指定有效的blog_id", null);
+        }
+
         long blog_id = operation.getBlog_id();
 
         //开始执行操作
