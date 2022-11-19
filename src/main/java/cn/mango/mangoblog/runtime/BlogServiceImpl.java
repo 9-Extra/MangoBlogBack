@@ -44,7 +44,7 @@ public class BlogServiceImpl {
     public ResultWrapper<Blog> GetOpenBlogById(Long id) {
         //查询构造器
         QueryWrapper<Blog> qw = new QueryWrapper<>();
-        qw.eq("id", id).eq("status",2);
+        qw.eq("id", id).eq("statusauthor",1).eq("statusadmin",1);
         List<Blog> result = blogMapper.selectList(qw);
         if (result.isEmpty()) {
             return new ResultWrapper<>(400, "Not found", null);
@@ -73,9 +73,9 @@ public class BlogServiceImpl {
 //    }
 
 
-    public List<Blog> GetBlogsByAuthorIdAndStauts(Long author_id, Integer status) {
+    public List<Blog> GetBlogsByAuthorIdAndStauts(Long author_id, Integer statusauthor,Integer statusadmin) {
         QueryWrapper<Blog> qw = new QueryWrapper<>();
-        qw.eq("authorid", author_id).eq("status", status);
+        qw.eq("authorid", author_id).eq("statusauthor", statusauthor).eq("statusadmin",statusadmin);
         return blogMapper.selectList(qw);
     }
 
@@ -101,26 +101,27 @@ public class BlogServiceImpl {
         uw.eq("id", blog_id)
                 .eq("authorid", author_id)
                 .set("description", description)
-                .set("content", content);
+                .set("content", content)
+                .set("statusadmin",-1);//设置blog状态为未审核
         return blogMapper.update(null, uw) == 1;
     }
 
 
     //以管理员权限，不修改博客内容，仅修改状态
-    public boolean upDateBlogStatusAdmin(Long blog_id, Integer status) {
+    public boolean upDateBlogStatusAdmin(Long blog_id, Integer statusadmin) {
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).set("status", status);
+        blogUpdateWrapper.eq("id", blog_id).set("statusadmin", statusadmin);
         return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
 
 
     //以用户权限，不修改博客内容，仅修改状态
-    public boolean upDateBlogStatusUser(Long blog_id, Integer status, Long user_id) {
-        if (status == 0){
+    public boolean upDateBlogStatusUser(Long blog_id, Integer statusauthor, Long user_id) {
+        if (statusauthor == 0){
             return false;//不可以将博客修改为新建状态
         }
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).eq("authorid",user_id).set("status", status);
+        blogUpdateWrapper.eq("id", blog_id).eq("authorid",user_id).set("statusauthor", statusauthor);
         return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
     //仅查询blog的作者
@@ -135,6 +136,14 @@ public class BlogServiceImpl {
             return blog.getAuthorid();
         }
     }
+
+//    public Boolean UpdateBlogAndStatusUser(Blog blog,Integer status){
+//        if(status==0){
+//            return false;
+//        }
+//        blog.setStatus(status);
+//        blogMapper.updateById(blog);
+//    }
 
     //删除blog
     public boolean deleteBlog(Long id,Long author_id) {

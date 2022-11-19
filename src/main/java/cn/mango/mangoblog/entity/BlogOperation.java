@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Nullable;
 public class BlogOperation {
 
     private Long blog_id;
-    @Nullable
-    private Integer status;
+//    @Nullable
+//    private Integer status;
     @Nullable
     private String description;
     @Nullable
@@ -18,7 +18,7 @@ public class BlogOperation {
 
     public BlogOperation(Long blog_id, @Nullable Integer status, @Nullable String description, @Nullable String content, String operation) {
         this.blog_id = blog_id;
-        this.status = status;
+//        this.status = status;
         this.description = description;
         this.content = content;
         this.operation = operation;
@@ -30,4 +30,6 @@ public class BlogOperation {
     public static final String OPERATION_MODIFY = "edit";//只修改博客内容，保持状态不变
     public static final String OPERATION_DELETE = "delete";
     public static final String OPERATION_REVOKE ="revoke";//只修改博客状态，内容状态不变
+
+    public static final String OPERATION_AGREE ="agree";
 }

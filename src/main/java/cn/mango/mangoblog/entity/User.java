@@ -10,13 +10,13 @@ import lombok.Data;
 public class User {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String nick_name;
+    private String nickname;
     private int age;
     private String password;
     private Integer privilege;
 
-    public User(Long id, String nick_name, int age, String password) {
-        this.nick_name = nick_name;
+    public User(Long id, String nickname, int age, String password) {
+        this.nickname = nickname;
         this.age = age;
         this.password = password;
     }

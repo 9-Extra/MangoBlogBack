@@ -4,9 +4,11 @@ import cn.mango.mangoblog.entity.Blog;
 import cn.mango.mangoblog.entity.BlogOperation;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.VerifyResult;
+import cn.mango.mangoblog.mapper.BlogMapper;
 import cn.mango.mangoblog.runtime.BlogServiceImpl;
 import cn.mango.mangoblog.utils.FileUtils;
 import cn.mango.mangoblog.utils.TokenUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import java.util.List;
 public class BlogController {
     @Autowired
     private BlogServiceImpl blogService;
+    private BlogMapper blogMapper;
 
     @GetMapping("/private/blog")//作者修改blog时向后端请求blog
     public ResultWrapper<Blog> GetPrivateBlogById(@RequestParam(value = "id", required = true) Long id,@RequestHeader(value="authorization",required = true)String token) {
@@ -45,7 +48,7 @@ public class BlogController {
 
     @GetMapping("/open/blogs")//用户查看某个作者的所有blog
     public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId (@RequestParam(value = "id",required = true)Long id){
-        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id,2));
+        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id,1,1));
     }
 
     private ResultWrapper<Long> change_blog_state(long blog_id, long user_id, Integer status, long privilege){
@@ -87,11 +90,11 @@ public class BlogController {
 
         //开始执行操作
         switch (operation.getOperation()) {
-            case BlogOperation.OPERATION_NEW -> {
-                List<Blog> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, 0);//查询该用户是否有空白blog
+            case BlogOperation.OPERATION_NEW -> {//创建空白blog,如果有则返回
+                List<Blog> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, -1,-1);//查询该用户是否有空白blog
                 if (result.isEmpty()) {
-                    //创建空白blog，status置为0
-                    Blog blog = new Blog(0L, user_id, 0, "默认描述", "# 请在此输入内容");
+                    //创建空白blog
+                    Blog blog = new Blog(0L, user_id, -1, -1,"默认描述", "# 请在此输入内容");
                     Long id = blogService.insertBlog(blog);
                     if (id == null){
                         return new ResultWrapper<>(500, "创建博客失败，这怎么可能", null);
@@ -101,16 +104,20 @@ public class BlogController {
                     return new ResultWrapper<>(0, "Success", result.get(0).getId());//data为blog_id
                 }
             }
-            case BlogOperation.OPERATION_SAVE-> {
-                return change_blog_state(blog_id, user_id, 1, verifyresultData.getPrivilege());
+            case BlogOperation.OPERATION_SAVE-> {//作者决定blog不公开，仅作者
+                return change_blog_state(blog_id, user_id, 0,0);
             }
-            case BlogOperation.OPERATION_POST -> {
-                return change_blog_state(blog_id, user_id, 2, verifyresultData.getPrivilege());
+            case BlogOperation.OPERATION_POST -> {//作者决定blog公开,仅作者
+                return change_blog_state(blog_id, user_id, 1, 0);
             }
-            case BlogOperation.OPERATION_REVOKE -> {
-                return change_blog_state(blog_id, user_id, operation.getStatus(), verifyresultData.getPrivilege());
+            case BlogOperation.OPERATION_REVOKE -> {//管理员决定blog不公开，仅管理员,如果作者决定公开才能执行此操作
+                List<Blog> blogList= blogMapper.selectList(Wrappers.<Blog>lambdaQuery().eq(Blog::getId,blog_id).eq(Blog::getStatusauthor,1));
+                return change_blog_state(blog_id, user_id, 0, verifyresultData.getPrivilege());
             }
-            case BlogOperation.OPERATION_MODIFY -> {
+            case BlogOperation.OPERATION_AGREE -> {
+                return change_blog_state(blog_id,user_id,1,verifyresultData.getPrivilege());
+            }
+            case BlogOperation.OPERATION_MODIFY -> {//用户更新blog，同时将statusadmin设置为-1(审核中)
                 String description = operation.getDescription();
                 String content = operation.getContent();
 

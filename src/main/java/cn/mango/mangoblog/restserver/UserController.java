@@ -54,10 +54,10 @@ public class UserController {
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
         Integer privilege = verifyresultData.getPrivilege();
         if (privilege != 2)
-            return new ResultWrapper<>(2, "invalid token", 0L);
+            return new ResultWrapper<>(2, "invalid token", null);
         if (userService.UpdateUserPrivilege(id, 1)) {
             return new ResultWrapper<>(0, "Success", null);
-        } else return new ResultWrapper<>(400, "Invalid id", 0L);
+        } else return new ResultWrapper<>(400, "Invalid id", null);
     }
 
     @PostMapping("/me")//用户查看自己的信息
@@ -74,5 +74,26 @@ public class UserController {
         User user = UserList.get(0);
         user.setPassword(null);
         return new ResultWrapper<>(0, "Success", user);
+    }
+
+    @PostMapping("/getusers")
+    public ResultWrapper<List<User>> getUsers(@RequestParam(value = "nickname")String nickname){
+        List<User> userList=userMapper.GetUserByNickName(nickname);
+        if(userList.isEmpty())
+        return new ResultWrapper(400,"Not found",null);
+        else return new ResultWrapper<>(0,"Success",userList);
+    }
+    @PostMapping("/degrade")//实现管理员权限的收回
+    public ResultWrapper<Long> DegradeUser(@RequestParam(value = "id", required = true) Long id, @RequestHeader(value = "authorization", required = true) String token) {
+        ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
+        VerifyResult verifyresultData = verifyResult.getData();
+        if (verifyresultData == null)
+            return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
+        Integer privilege = verifyresultData.getPrivilege();
+        if (privilege != 2)
+            return new ResultWrapper<>(2, "invalid token", null);
+        if (userService.UpdateUserPrivilege(id, 0)) {
+            return new ResultWrapper<>(0, "Success", null);
+        } else return new ResultWrapper<>(400, "Invalid id", null);
     }
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.mango.mangoblog.mapper.UserMapper" >
+    <!--定义结果映射-->
+    <resultMap id="UserResultMap" type="cn.mango.mangoblog.entity.User">
+        <!--主键-->
+        <id column="id" property="id"></id>
+        <!--普通字段-->
+        <result column="nickname" property="nickname"></result>
+        <result column="age" property="age"></result>
+<!--        <result column="password" property="password"></result>-->
+        <result column="privilege" property="privilege"></result>
+    </resultMap>
+    <!--定义查询-->
+    <select id="GetUserByNickName" resultMap="UserResultMap">
+        select id,nickname,age,privilege from users  where nickname like CONCAT('%',#{nickname},'%')
+    </select>
+</mapper>

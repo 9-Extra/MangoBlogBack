@@ -45,7 +45,7 @@ public class FileUtils {
             e.printStackTrace();
         }
         System.out.println("============上传成功");
-        return "/upload/" + user_id + "/" + blog_id + '/' + filename;
+        return "/upload" + user_id + "/" + blog_id + filename;
     }
 
     //下载时获取输入流
@@ -54,13 +54,13 @@ public class FileUtils {
     }
 
     //下载图片
-    public static ResultWrapper<OutputStream> Download(OutputStream out, String url) {
-        String path = System.getProperty("user.dir") + "/image" + url;
-//        if (url != null && user_id == null)
-//            path = System.getProperty("user.dir") + "/image" + url;
-//        else if (url == null && user_id != null)
-//            path = System.getProperty("user.dir") + "/image/upload/" + user_id;
-//        else return new ResultWrapper<>(500, "Incomplete request param", null);
+    public static ResultWrapper<OutputStream> Download(OutputStream out, String url, Long user_id) {
+        String path;
+        if (url != null && user_id == null)
+            path = System.getProperty("user.dir") + "/image" + url;
+        else if (url == null && user_id != null)
+            path = System.getProperty("user.dir") + "/image/upload/" + user_id;
+        else return new ResultWrapper<>(500, "Incomplete request param", null);
         InputStream in;
         try {
             in = getImgInputStream(path);

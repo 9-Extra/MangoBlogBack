@@ -3,7 +3,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/mangoblog?useUnicode=true&characterEncoding=UTF-8
     username: root
-    password: Pi=3.1415926
+    password:
   servlet: #文件上传相关
     multipart:
       #enabled: true #配置文件传输协议，都是使用默认值
@@ -16,5 +16,7 @@ spring:
     level:
       root: debug
 mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml  #注意：一定要对应mapper映射xml文件的所在路径
+  type-aliases-package: cn.mango.mangoblog.entity.User  # 注意：对应实体类的路径
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
