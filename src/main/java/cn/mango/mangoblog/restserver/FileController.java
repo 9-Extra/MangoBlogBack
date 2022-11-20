@@ -50,18 +50,6 @@ public class FileController {
         String result=FileUtils.ModifyProfile(file,user_id);
         return new ResultWrapper<>(0,"Success",result);
     }
-    //图片下载
-    @GetMapping("/image/download/")//下载blog中图片
-    public ResultWrapper<OutputStream> imageDownload(HttpServletResponse resp, @RequestParam(value = "url", required = false) String url)  {
-
-        resp.setContentType(MediaType.ALL_VALUE);//IMAGE_PNG_VALUE
-        try {
-            return FileUtils.Download(resp.getOutputStream(), url);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResultWrapper<>(800,"HttpServletResponse.getOutputStream failed",null);
-        }
-    }
 
 //    @PostMapping("/image/delete")//删除单个文件
 //    public ResultWrapper<Long> deleteFile(@RequestParam(value = "url", required = true) String url) throws IOException {
