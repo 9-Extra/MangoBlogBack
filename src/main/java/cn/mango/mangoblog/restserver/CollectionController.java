@@ -8,20 +8,17 @@ import cn.mango.mangoblog.runtime.BlogServiceImpl;
 import cn.mango.mangoblog.runtime.CollectionServiceImpl;
 import cn.mango.mangoblog.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@RestController
 public class CollectionController {
     @Autowired
     private CollectionServiceImpl collectionService;
     @Autowired
     private BlogServiceImpl blogService;
 
-    @GetMapping("/collection/{id}")//用户根据user_id获取所有收藏
+    @GetMapping("/collection")//用户根据user_id获取所有收藏
     public ResultWrapper<List<Collection>> get_collections(@RequestHeader(value = "authorization")String token){
         ResultWrapper<VerifyResult> verifyResultResultWrapper= TokenUtils.Verify(token);
         if(verifyResultResultWrapper.getData()==null){

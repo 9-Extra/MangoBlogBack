@@ -27,7 +27,7 @@ public class CollectionServiceImpl {
 
     public List<Collection> get_collections_by_user_id(Long user_id){//根据userid获取所有收藏
         QueryWrapper<Collection> qw=new QueryWrapper<>();
-        qw.eq("authorid",user_id);
+        qw.eq("userid",user_id);
         return collectionMapper.selectList(qw);
     }
 
