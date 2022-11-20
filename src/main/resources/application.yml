@@ -8,8 +8,8 @@ spring:
     multipart:
       #enabled: true #配置文件传输协议，都是使用默认值
       #file-size-threshold: 0 #配置文件传输协议，都是使用默认值
-      max-request-size: 100MB #设置单个请求大小
-      max-file-size: 100MB #设置总数据大小
+      max-request-size: 10GB #设置单个请求大小
+      max-file-size: 10GB #设置总数据大小
   elasticsearch:
     uris: 127.0.0.1:9200
   logging:
