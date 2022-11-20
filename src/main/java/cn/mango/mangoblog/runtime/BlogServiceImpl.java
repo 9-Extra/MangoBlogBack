@@ -133,7 +133,7 @@ public class BlogServiceImpl {
     public void update_blog_count(Long blog_id) {
         UpdateWrapper<Blog> wrapper = new UpdateWrapper<>();
         wrapper.eq("id", blog_id);
-        wrapper.setSql("'commentcount' = 'commentcount' + 1");
+        wrapper.setSql("count = count + 1");
         blogMapper.update(null,wrapper);
     }
     //仅查询blog的作者
