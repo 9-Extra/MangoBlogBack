@@ -123,7 +123,7 @@ public class BlogServiceImpl {
 
     public boolean RevokeBlogAdmin(Long blog_id, Integer statusadmin) {
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).eq("statusadmin",1).set("statusadmin", statusadmin);//无需用户同意，只要是已通过的blog都能进行撤回
+        blogUpdateWrapper.eq("id", blog_id).set("statusadmin", statusadmin);//无需用户同意，只要是已通过的blog都能进行撤回
         return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
 

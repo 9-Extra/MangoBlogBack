@@ -81,7 +81,7 @@ public class BlogController {
         else if(verifyResultResultWrapper.getData().getPrivilege()==0){
             return new ResultWrapper<>(2,"权限不足",null);
         }
-        else  return new ResultWrapper<>(0,"Success",blogService.GetBlogsByStauts(1,0));
+        else  return new ResultWrapper<>(0,"Success",blogService.GetBlogsByStautsAdmin(0));
     }
 
     private ResultWrapper<Long> change_blog_state(long blog_id, long user_id, Integer status, long privilege,String operation){
@@ -155,7 +155,7 @@ public class BlogController {
                 return change_blog_state(blog_id, user_id, 1, 0,null);
             }
             case BlogOperation.OPERATION_REVOKE -> {//管理员决定blog不公开，仅管理员,只要statusadmin=1就能执行此操作
-                List<Blog> blogList= blogMapper.selectList(Wrappers.<Blog>lambdaQuery().eq(Blog::getId,blog_id).eq(Blog::getStatusauthor,1));
+//                List<Blog> blogList= blogMapper.selectList(Wrappers.<Blog>lambdaQuery().eq(Blog::getId,blog_id).eq(Blog::getStatusauthor,1));
                 return change_blog_state(blog_id, user_id, 0, verifyresultData.getPrivilege(), operation.getOperation());
             }
             case BlogOperation.OPERATION_AGREE -> {
