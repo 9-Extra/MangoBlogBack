@@ -20,6 +20,22 @@ public class BlogController {
     private BlogServiceImpl blogService;
     private BlogMapper blogMapper;
 
+
+
+    @GetMapping("/open/blog/{id}")//其他用户查看blog时向后端请求blog
+    public ResultWrapper<Blog> GetOpenBlog(@PathVariable(value = "id", required = true) Long id) {
+        return blogService.GetOpenBlogById(id);
+    }
+    @GetMapping("/open/blogs/all")//查看所有已公开
+    public ResultWrapper<List<Blog>> GetOpenBlogs(){
+        return new ResultWrapper<>(blogService.GetBlogsByStauts(1,1));
+    }
+
+
+    @GetMapping("/open/blogs")//用户查看某个作者的所有blog
+    public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId(@RequestParam(value = "id", required = true) Long id) {
+        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id, 1, 1));
+    }
     @GetMapping("/private/blog")//作者修改blog时向后端请求blog
     public ResultWrapper<Blog> GetPrivateBlogById(@RequestParam(value = "id", required = true) Long id, @RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
@@ -30,15 +46,6 @@ public class BlogController {
         Long user_id = verifyResult.getData().getId();//以token中的id为最终user_id
         return blogService.GetBlogByIdAndAuthorId(id, user_id);
     }
-
-    @GetMapping("/open/blog")//其他用户查看blog时向后端请求blog
-    public ResultWrapper<Blog> GetOpenBlog(@RequestParam(value = "id", required = true) Long id) {
-        return blogService.GetOpenBlogById(id);
-    }
-    @GetMapping("/open/blogs")//查看所有已公开
-    public ResultWrapper<List<Blog>> GetOpenBlogs(){
-        return new ResultWrapper<>(blogService.GetBlogsByStauts(1,1));
-    }
     @GetMapping("/private/blogs")//作者查看自己的所有blog
     public ResultWrapper<List<Blog>> GetPrivateBlogs(@RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
@@ -47,11 +54,6 @@ public class BlogController {
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
         Long user_id = verifyresultData.getId();//以token中的id为最终user_id
         return blogService.GetAllBlogsByAuthorId(user_id);
-    }
-
-    @GetMapping("/open/blogs")//用户查看某个作者的所有blog
-    public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId(@RequestParam(value = "id", required = true) Long id) {
-        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id, 1, 1));
     }
 
     @GetMapping("/admin/uninspected")//管理员获取未审核blog

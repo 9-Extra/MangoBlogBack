@@ -45,8 +45,8 @@ public class UserController {
         }
         return userService.login_check(loginMessage.id, loginMessage.password);
     }
-    @GetMapping("/user")
-    public ResultWrapper<User> getUser(@RequestParam(value = "id")Long id){
+    @GetMapping("/user/{id}")
+    public ResultWrapper<User> getUser(@PathVariable(value = "id")Long id){
         User user=userService.getUser(id);
         if(user==null){
             return new ResultWrapper<>(400,"Not found",null);
