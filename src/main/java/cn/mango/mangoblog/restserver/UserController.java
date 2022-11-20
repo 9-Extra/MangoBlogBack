@@ -66,7 +66,7 @@ public class UserController {
         if (verifyResultResultWrapper.getCode() != 0)
             return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
         Long user_id = verifyResultResultWrapper.getData().getId();
-//        List<Blog> blogList= blogMapper.selectList(Wrappers.<Blog>lambdaQuery().eq(Blog::getId,blog_id).eq(Blog::getAuthorid,user_id));
+
         List<User> UserList = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getId, user_id));
         if (UserList.isEmpty()) {
             return new ResultWrapper<>(2, "Invalid token", null);

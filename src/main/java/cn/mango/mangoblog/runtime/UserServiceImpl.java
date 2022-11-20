@@ -1,8 +1,7 @@
 package cn.mango.mangoblog.runtime;
 
 import cn.mango.mangoblog.utils.TokenUtils;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.User;
@@ -12,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Primary
 @Service
@@ -80,5 +77,22 @@ public class UserServiceImpl{
         UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
         updateWrapper.eq("id",id).set("privilege",privilege);
         return userMapper.update(null,updateWrapper)==1;
+    }
+
+    public String get_head_image_url(long id){
+        LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
+        qw.eq(User::getId, id).select(User::getHeadImageUrl);
+        User user = userMapper.selectOne(qw);
+        String url = null;
+        if (user != null){
+            url = user.getHeadImageUrl();
+        }
+        return url;
+    }
+
+    public boolean set_head_image_url(long id, String url){
+        UpdateWrapper<User> uw = new UpdateWrapper<>();
+        uw.eq("id", id).set("head_image_url", url);
+        return userMapper.update(null, uw) == 1;
     }
 }

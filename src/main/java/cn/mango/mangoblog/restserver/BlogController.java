@@ -24,7 +24,7 @@ public class BlogController {
     @GetMapping("/private/blog")//作者修改blog时向后端请求blog
     public ResultWrapper<Blog> GetPrivateBlogById(@RequestParam(value = "id", required = true) Long id,@RequestHeader(value="authorization",required = true)String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
-        if (!verifyResult.is_success()){
+        if (verifyResult.getCode() != 0){
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
         }
 

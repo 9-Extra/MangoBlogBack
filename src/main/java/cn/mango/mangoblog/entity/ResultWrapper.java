@@ -8,10 +8,6 @@ public class ResultWrapper<T> {
     private String message;
     private T data;
 
-    public boolean is_success(){
-        return code == 0;
-    }
-
     public ResultWrapper(long code, String message, T data){
         this.code = code;
         this.message = message;

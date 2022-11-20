@@ -2,6 +2,7 @@ package cn.mango.mangoblog.utils;
 
 import cn.mango.mangoblog.entity.ResultWrapper;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
@@ -46,7 +47,8 @@ public class FileUtils {
         return path;
     }
 
-    public static void Delete(String spath) {//删除图片及文件夹，spath指明文件时删除文件，否则删除文件夹,spath为文件真实路径
+    //删除图片及文件夹，spath指明文件时删除文件，否则删除文件夹,spath为文件真实路径
+    public static void Delete(String spath) {
         Path path = Paths.get(spath);
         try {
             Files.walkFileTree(path, new SimpleFileVisitor<>() {
@@ -77,13 +79,12 @@ public class FileUtils {
             e.printStackTrace();
         }
     }
-
-    public static String ModifyProfile(MultipartFile file, Long user_id) {
-        String path = System.getProperty("user.dir") + "/image/upload/" + user_id;
-        Delete(path);
-        if (file != null) {
-            Upload(file, null, user_id);
-            return "Modify profile success";
-        } else return "Delete profile success";
+    //通过url删除文件
+    public static boolean delete_file_by_url(String url) {
+        return get_file_by_url(url).delete();
+    }
+    public static File get_file_by_url(String url){
+        String system_root = System.getProperty("user.dir") + "/image";
+        return new File(system_root, url != null ? url : "");
     }
 }
