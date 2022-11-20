@@ -7,8 +7,6 @@ import org.jetbrains.annotations.Nullable;
 public class BlogOperation {
 
     private Long blog_id;
-//    @Nullable
-//    private Integer status;
     @Nullable
     private String description;
     @Nullable

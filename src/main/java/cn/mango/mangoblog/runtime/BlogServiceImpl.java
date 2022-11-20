@@ -1,7 +1,6 @@
 package cn.mango.mangoblog.runtime;
 
 import cn.mango.mangoblog.entity.Blog;
-import cn.mango.mangoblog.entity.BlogOperation;
 import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.mapper.BlogMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -96,10 +95,11 @@ public class BlogServiceImpl {
         UpdateWrapper<Blog> uw = new UpdateWrapper<>();
         uw.eq("id", blog_id)
                 .eq("authorid", author_id)
-                .eq("status", 0)
-                .set("status", 1);
+                .eq("statusauthor", -1)
+                .set("statusauthor", 0);//如果是白板，将其设置为非公开
         blogMapper.update(null, uw);
         uw.clear();
+
         uw.eq("id", blog_id)
                 .eq("authorid", author_id)
                 .set("description", description)
@@ -108,33 +108,26 @@ public class BlogServiceImpl {
         return blogMapper.update(null, uw) == 1;
     }
 
-
-    //以管理员权限，不修改博客内容，仅修改状态
-//    public boolean UpdateBlogStatusAdmin(Long blog_id, Integer statusadmin) {
-//        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-//        blogUpdateWrapper.eq("id", blog_id).set("statusadmin", statusadmin);//管理员只能在用户决定公开后才能通过审核
-//        return blogMapper.update(null, blogUpdateWrapper) == 1;
-//    }
-    public boolean AgreeBlogAdmin(Long blog_id, Integer statusadmin) {
+    //作者用，修改博客状态（检查作者）
+    public boolean update_blog_state_author(long blog_id, long author_id, Integer status_author, Integer status_admin){
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).eq("statusauthor",1).set("statusadmin", statusadmin);//管理员只能在用户决定公开后才能通过审核
+        blogUpdateWrapper
+                .eq("id", blog_id)
+                .eq("authorid", author_id)
+                .set(status_author != null && status_author != 0, "statusauthor", status_author)
+                .set(status_admin != null, "statusadmin", status_admin);
+
         return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
 
-    public boolean RevokeBlogAdmin(Long blog_id, Integer statusadmin) {
+    //管理员用，修改博客状态（不检查作者）
+    public boolean update_blog_state_admin(long blog_id, Integer status_author, Integer status_admin){
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).set("statusadmin", statusadmin);//无需用户同意，只要是已通过的blog都能进行撤回
-        return blogMapper.update(null, blogUpdateWrapper) == 1;
-    }
+        blogUpdateWrapper
+                .eq("id", blog_id)
+                .set(status_author != null && status_author != 0, "statusauthor", status_author)
+                .set(status_admin != null, "statusadmin", status_admin);
 
-
-    //以用户权限，不修改博客内容，仅修改状态
-    public boolean upDateBlogStatusUser(Long blog_id, Integer statusauthor, Long user_id) {
-        if (statusauthor == 0){
-            return false;//不可以将博客修改为新建状态
-        }
-        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).eq("authorid",user_id).set("statusauthor", statusauthor);
         return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
     //仅查询blog的作者

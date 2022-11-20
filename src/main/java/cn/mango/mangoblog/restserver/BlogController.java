@@ -8,7 +8,6 @@ import cn.mango.mangoblog.mapper.BlogMapper;
 import cn.mango.mangoblog.runtime.BlogServiceImpl;
 import cn.mango.mangoblog.utils.FileUtils;
 import cn.mango.mangoblog.utils.TokenUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,22 +21,23 @@ public class BlogController {
     private BlogMapper blogMapper;
 
     @GetMapping("/private/blog")//作者修改blog时向后端请求blog
-    public ResultWrapper<Blog> GetPrivateBlogById(@RequestParam(value = "id", required = true) Long id,@RequestHeader(value="authorization",required = true)String token) {
+    public ResultWrapper<Blog> GetPrivateBlogById(@RequestParam(value = "id", required = true) Long id, @RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
-        if (verifyResult.getCode() != 0){
+        if (verifyResult.getCode() != 0) {
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
         }
 
         Long user_id = verifyResult.getData().getId();//以token中的id为最终user_id
         return blogService.GetBlogByIdAndAuthorId(id, user_id);
     }
+
     @GetMapping("/open/blog")//其他用户查看blog时向后端请求blog
-    public ResultWrapper<Blog> GetOpenBlog(@RequestParam(value = "id", required = true) Long id){
+    public ResultWrapper<Blog> GetOpenBlog(@RequestParam(value = "id", required = true) Long id) {
         return blogService.GetOpenBlogById(id);
     }
 
     @GetMapping("/private/blogs")//作者查看自己的所有blog
-    public ResultWrapper<List<Blog>> GetPrivateBlogs(@RequestHeader(value = "authorization",required = true)String token){
+    public ResultWrapper<List<Blog>> GetPrivateBlogs(@RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
         VerifyResult verifyresultData = verifyResult.getData();
         if (verifyresultData == null)
@@ -47,75 +47,39 @@ public class BlogController {
     }
 
     @GetMapping("/open/blogs")//用户查看某个作者的所有blog
-    public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId (@RequestParam(value = "id",required = true)Long id){
-        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id,1,1));
+    public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId(@RequestParam(value = "id", required = true) Long id) {
+        return new ResultWrapper<>(blogService.GetBlogsByAuthorIdAndStauts(id, 1, 1));
     }
 
     @GetMapping("/admin/uninspected")//管理员获取未审核blog
-    public ResultWrapper<List<Blog>> GetUninspectedBlogs(@RequestHeader(value = "authorization",required = true)String token){
-        ResultWrapper<VerifyResult> verifyResultResultWrapper=TokenUtils.Verify(token);
-        if(verifyResultResultWrapper.getData()==null)
-            return new ResultWrapper<>(verifyResultResultWrapper.getCode(),verifyResultResultWrapper.getMessage(),null);
-        else if(verifyResultResultWrapper.getData().getPrivilege()==0){
-            return new ResultWrapper<>(2,"权限不足",null);
-        }
-        else  return new ResultWrapper<>(0,"Success",blogService.GetBlogsByStauts(1,-1));
+    public ResultWrapper<List<Blog>> GetUninspectedBlogs(@RequestHeader(value = "authorization", required = true) String token) {
+        ResultWrapper<VerifyResult> verifyResultResultWrapper = TokenUtils.Verify(token);
+        if (verifyResultResultWrapper.getData() == null)
+            return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
+        else if (verifyResultResultWrapper.getData().getPrivilege() == 0) {
+            return new ResultWrapper<>(2, "权限不足", null);
+        } else return new ResultWrapper<>(0, "Success", blogService.GetBlogsByStauts(1, -1));
     }
 
     @GetMapping("/admin/approved")//管理员获取已通过
-    public ResultWrapper<List<Blog>> GetApprovedBlogsByStatus(@RequestHeader(value = "authorization",required = true)String token){
-        ResultWrapper<VerifyResult> verifyResultResultWrapper=TokenUtils.Verify(token);
-        if(verifyResultResultWrapper.getData()==null)
-            return new ResultWrapper<>(verifyResultResultWrapper.getCode(),verifyResultResultWrapper.getMessage(),null);
-        else if(verifyResultResultWrapper.getData().getPrivilege()==0){
-            return new ResultWrapper<>(2,"权限不足",null);
-        }
-        else  return new ResultWrapper<>(0,"Success",blogService.GetBlogsByStautsAdmin(1));
+    public ResultWrapper<List<Blog>> GetApprovedBlogsByStatus(@RequestHeader(value = "authorization", required = true) String token) {
+        ResultWrapper<VerifyResult> verifyResultResultWrapper = TokenUtils.Verify(token);
+        if (verifyResultResultWrapper.getData() == null)
+            return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
+        else if (verifyResultResultWrapper.getData().getPrivilege() == 0) {
+            return new ResultWrapper<>(2, "权限不足", null);
+        } else return new ResultWrapper<>(0, "Success", blogService.GetBlogsByStautsAdmin(1));
     }
 
     @GetMapping("/admin/disapproved")//管理员获取不通过
-    public ResultWrapper<List<Blog>> GetDisapprovedBlogsByStatus(@RequestHeader(value = "authorization",required = true)String token){
-        ResultWrapper<VerifyResult> verifyResultResultWrapper=TokenUtils.Verify(token);
-        if(verifyResultResultWrapper.getData()==null)
-            return new ResultWrapper<>(verifyResultResultWrapper.getCode(),verifyResultResultWrapper.getMessage(),null);
-        else if(verifyResultResultWrapper.getData().getPrivilege()==0){
-            return new ResultWrapper<>(2,"权限不足",null);
-        }
-        else  return new ResultWrapper<>(0,"Success",blogService.GetBlogsByStautsAdmin(0));
+    public ResultWrapper<List<Blog>> GetDisapprovedBlogsByStatus(@RequestHeader(value = "authorization", required = true) String token) {
+        ResultWrapper<VerifyResult> verifyResultResultWrapper = TokenUtils.Verify(token);
+        if (verifyResultResultWrapper.getData() == null)
+            return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
+        else if (verifyResultResultWrapper.getData().getPrivilege() == 0) {
+            return new ResultWrapper<>(2, "权限不足", null);
+        } else return new ResultWrapper<>(0, "Success", blogService.GetBlogsByStauts(1, 0));
     }
-
-    private ResultWrapper<Long> change_blog_state(long blog_id, long user_id, Integer status, long privilege,String operation){
-        if (status == null){
-            return new ResultWrapper<>(3, "请求字段取值非法", null);
-        }
-
-        //如果是管理员
-        if (privilege == 1){
-            if(operation==null){
-                return new ResultWrapper<>(3,"传入指令为空",null);
-            }
-            else if(operation.equals("agree")){
-                if (blogService.AgreeBlogAdmin(blog_id, status)) {
-                    return new ResultWrapper<>(blog_id);
-                } else {
-                    return new ResultWrapper<>(500, "指定博客可能不存在", null);
-                }
-            }
-            else if(operation.equals("revoke")){
-                if (blogService.RevokeBlogAdmin(blog_id, status)) {
-                    return new ResultWrapper<>(blog_id);
-                } else {
-                    return new ResultWrapper<>(500, "指定博客可能不存在", null);
-                }
-            }
-        }
-        //用户
-        if (blogService.upDateBlogStatusUser(blog_id, status, user_id)){
-            return new ResultWrapper<>(blog_id);
-        }
-        return new ResultWrapper<>(500, "指定博客可能不存在，或这该博客作者并不是您", null);
-    }
-
     //发布blog
     @PostMapping("/post")
     public ResultWrapper<Long> Post(@RequestBody BlogOperation operation, @RequestHeader(value = "authorization", required = false) String token) throws IOException {
@@ -126,7 +90,7 @@ public class BlogController {
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), null);
 
         long user_id = verifyresultData.getId();//以token中的id为最终user_id
-        if (operation.getBlog_id() == null){
+        if (operation.getBlog_id() == null) {
             return new ResultWrapper<>(3, "必须指定有效的blog_id", null);
         }
 
@@ -135,12 +99,12 @@ public class BlogController {
         //开始执行操作
         switch (operation.getOperation()) {
             case BlogOperation.OPERATION_NEW -> {//创建空白blog,如果有则返回
-                List<Blog> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, -1,-1);//查询该用户是否有空白blog
+                List<Blog> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, -1, -1);//查询该用户是否有空白blog
                 if (result.isEmpty()) {
                     //创建空白blog
-                    Blog blog = new Blog(0L, user_id, -1, -1,"默认描述", "# 请在此输入内容");
+                    Blog blog = new Blog(0L, user_id, -1, -1, "默认描述", "# 请在此输入内容");
                     Long id = blogService.insertBlog(blog);
-                    if (id == null){
+                    if (id == null) {
                         return new ResultWrapper<>(500, "创建博客失败，这怎么可能", null);
                     }
                     return new ResultWrapper<>(id);
@@ -148,24 +112,47 @@ public class BlogController {
                     return new ResultWrapper<>(0, "Success", result.get(0).getId());//data为blog_id
                 }
             }
-            case BlogOperation.OPERATION_SAVE-> {//作者决定blog不公开，仅作者
-                return change_blog_state(blog_id, user_id, 0,0,null);
+            case BlogOperation.OPERATION_SAVE -> {//作者决定blog不公开，仅作者
+               if (blogService.update_blog_state_author(blog_id, user_id, 0, null)){
+                   return new ResultWrapper<>(blog_id);
+               } else {
+                   return new ResultWrapper<>(500, "回收博客失败", blog_id);
+               }
             }
             case BlogOperation.OPERATION_POST -> {//作者决定blog公开,仅作者
-                return change_blog_state(blog_id, user_id, 1, 0,null);
+                if (blogService.update_blog_state_author(blog_id, user_id, 1, null)){
+                    return new ResultWrapper<>(blog_id);
+                } else {
+                    return new ResultWrapper<>(500, "发布博客失败", blog_id);
+                }
             }
             case BlogOperation.OPERATION_REVOKE -> {//管理员决定blog不公开，仅管理员,只要statusadmin=1就能执行此操作
-//                List<Blog> blogList= blogMapper.selectList(Wrappers.<Blog>lambdaQuery().eq(Blog::getId,blog_id).eq(Blog::getStatusauthor,1));
-                return change_blog_state(blog_id, user_id, 0, verifyresultData.getPrivilege(), operation.getOperation());
+                if (verifyresultData.getPrivilege() != 0){
+                    if (blogService.update_blog_state_admin(blog_id, null, 0)){
+                        return new ResultWrapper<>(blog_id);
+                    } else {
+                        return new ResultWrapper<>(500, "拒绝博客失败", blog_id);
+                    }
+                } else {
+                    return new ResultWrapper<>(4, "权限不足", blog_id);
+                }
             }
             case BlogOperation.OPERATION_AGREE -> {
-                return change_blog_state(blog_id,user_id,1,verifyresultData.getPrivilege(),operation.getOperation());
+                if (verifyresultData.getPrivilege() != 0){
+                    if (blogService.update_blog_state_admin(blog_id, null, 1)){
+                        return new ResultWrapper<>(blog_id);
+                    } else {
+                        return new ResultWrapper<>(500, "通过博客失败", blog_id);
+                    }
+                } else {
+                    return new ResultWrapper<>(4, "权限不足", blog_id);
+                }
             }
             case BlogOperation.OPERATION_MODIFY -> {//用户更新blog，同时将statusadmin设置为-1(审核中)
                 String description = operation.getDescription();
                 String content = operation.getContent();
 
-                if (description == null || content == null){
+                if (description == null || content == null) {
                     return new ResultWrapper<>(3, "请求字段取值非法", null);
                 }
 
@@ -177,7 +164,7 @@ public class BlogController {
             }
 
             case BlogOperation.OPERATION_DELETE -> {
-                if (!blogService.deleteBlog(blog_id ,user_id)) {
+                if (!blogService.deleteBlog(blog_id, user_id)) {
                     return new ResultWrapper<>(500, "删除博客失败", 0L);
                 } else {
                     String path = System.getProperty("user.dir") + "/image/upload/" + user_id + blog_id;//blog中图片的文件夹路径
