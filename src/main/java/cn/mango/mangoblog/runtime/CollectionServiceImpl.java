@@ -31,16 +31,16 @@ public class CollectionServiceImpl {
         return collectionMapper.selectList(qw);
     }
 
-    public Boolean delete_collection_by_collectoin_id_and_user_id(Long collection_id,Long user_id){
+    public Boolean delete_collection_by_blog_id_and_user_id(Long blog_id,Long user_id){
         QueryWrapper<Collection> qw=new QueryWrapper<>();
-        qw.eq("id",collection_id).eq("userid",user_id);
+        qw.eq("blogid",blog_id).eq("userid",user_id);
         return collectionMapper.delete(qw)==1;
     }
 
-//    public Boolean dlete_collections_by_blog_id(Long blogid){
-//        QueryWrapper<Collection> qw = new QueryWrapper<>();
-//        qw.eq("id",blogid);
-//        return commentMapper.delete(qw) ==1;
-//    }
+    public Boolean delete_collections_by_blog_id(Long blogid){
+        QueryWrapper<Collection> qw = new QueryWrapper<>();
+        qw.eq("id",blogid);
+        return collectionMapper.delete(qw) ==1;
+    }
 
 }

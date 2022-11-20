@@ -48,13 +48,13 @@ public class CollectionController {
     }
 
     @PostMapping("collection/delete")
-    public ResultWrapper<Boolean> delete_collection(@RequestParam(value = "collectionid")Long collection_id,@RequestHeader(value = "authorization")String token){
+    public ResultWrapper<Boolean> delete_collection(@RequestParam(value = "collectionid")Long blog_id,@RequestHeader(value = "authorization")String token){
         ResultWrapper<VerifyResult> verifyResultResultWrapper= TokenUtils.Verify(token);
         if(verifyResultResultWrapper.getData()==null){
             return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), false);
         }
         Long user_id=verifyResultResultWrapper.getData().getId();
-        if(collectionService.delete_collection_by_collectoin_id_and_user_id(collection_id,user_id)){
+        if(collectionService.delete_collection_by_blog_id_and_user_id(blog_id,user_id)){
             return new ResultWrapper<>(true);
         }
         return new ResultWrapper<>(400,"未找到指定收藏项",false);

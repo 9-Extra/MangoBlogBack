@@ -15,4 +15,5 @@
     <select id="GetUserByNickName" resultMap="UserResultMap">
         select id,nickname,age,privilege from users  where nickname like CONCAT('%',#{nickname},'%')
     </select>
+
 </mapper>
