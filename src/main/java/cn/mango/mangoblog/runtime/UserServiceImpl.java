@@ -78,6 +78,12 @@ public class UserServiceImpl{
         return userMapper.update(null,updateWrapper)==1;
     }
 
+    public Boolean update_user_profile(User user){//修改用户的个人信息
+        UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.eq("id",user.getId()).set("age",user.getAge()).set("nickname",user.getNickname());
+        return userMapper.update(null,updateWrapper)==1;
+    }
+
     public String get_head_image_url(long id){
         LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
         qw.eq(User::getId, id).select(User::getHeadImageUrl);

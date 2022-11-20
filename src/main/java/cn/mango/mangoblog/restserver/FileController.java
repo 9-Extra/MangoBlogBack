@@ -2,21 +2,20 @@ package cn.mango.mangoblog.restserver;
 
 import cn.mango.mangoblog.entity.Blog;
 import cn.mango.mangoblog.entity.ResultWrapper;
-import cn.mango.mangoblog.entity.User;
+
 import cn.mango.mangoblog.entity.VerifyResult;
 import cn.mango.mangoblog.mapper.BlogMapper;
-import cn.mango.mangoblog.mapper.UserMapper;
+
 import cn.mango.mangoblog.runtime.UserServiceImpl;
 import cn.mango.mangoblog.utils.FileUtils;
 import cn.mango.mangoblog.utils.TokenUtils;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +31,7 @@ public class FileController {
 
     //blog中图片上传
     @PostMapping(value = "/file/upload", produces = "application/json")//上传blog中图片
-    public ResultWrapper<String> imageUpload(@RequestBody MultipartFile file, @RequestHeader(value = "authorization", required = true) String token, @RequestParam(value = "id", required = true) Long blog_id) throws IOException {
+    public ResultWrapper<String> imageUpload(@RequestBody MultipartFile file, @RequestHeader(value = "authorization", required = true) String token, @RequestParam(value = "id", required = true) Long blog_id)  {
         ResultWrapper<VerifyResult> verifyresult = TokenUtils.Verify(token);
         if (verifyresult.getData() == null)
             return new ResultWrapper<>(verifyresult.getCode(), verifyresult.getMessage(), "");

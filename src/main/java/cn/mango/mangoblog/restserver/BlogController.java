@@ -6,6 +6,7 @@ import cn.mango.mangoblog.entity.ResultWrapper;
 import cn.mango.mangoblog.entity.VerifyResult;
 import cn.mango.mangoblog.mapper.BlogMapper;
 import cn.mango.mangoblog.runtime.BlogServiceImpl;
+import cn.mango.mangoblog.runtime.CommentServiceImpl;
 import cn.mango.mangoblog.utils.FileUtils;
 import cn.mango.mangoblog.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,20 @@ import java.util.List;
 public class BlogController {
     @Autowired
     private BlogServiceImpl blogService;
-    private BlogMapper blogMapper;
+    @Autowired
+    private CommentServiceImpl commentService;
 
 
 
     @GetMapping("/open/blog/{id}")//其他用户查看blog时向后端请求blog
     public ResultWrapper<Blog> GetOpenBlog(@PathVariable(value = "id", required = true) Long id) {
-        return blogService.GetOpenBlogById(id);
+
+        Blog blog = blogService.GetOpenBlogById(id);
+        if(blog!=null){
+            blogService.update_blog_count(id);
+            return new ResultWrapper<>(blog);
+        }
+        return new ResultWrapper<>(400,"找不到指定blog",null);
     }
     @GetMapping("/open/blogs/all")//查看所有已公开
     public ResultWrapper<List<Blog>> GetOpenBlogs(){
@@ -171,11 +179,14 @@ public class BlogController {
             case BlogOperation.OPERATION_DELETE -> {
                 if (!blogService.deleteBlog(blog_id, user_id)) {
                     return new ResultWrapper<>(500, "删除博客失败", 0L);
-                } else {
+                }
                     String path = System.getProperty("user.dir") + "/image/upload/" + user_id + blog_id;//blog中图片的文件夹路径
                     FileUtils.Delete(path);//删除文件夹
-                    return new ResultWrapper<>(operation.getBlog_id());
-                }
+                return new ResultWrapper<>(operation.getBlog_id());
+//                if(commentService.DeleteCommentsByBlogId(blog_id))
+//                    return new ResultWrapper<>(operation.getBlog_id());
+//                else return new ResultWrapper<>(500,"删除评论失败",null);
+
             }
 
             default -> {

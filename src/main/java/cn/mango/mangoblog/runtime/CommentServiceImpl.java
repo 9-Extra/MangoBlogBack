@@ -24,12 +24,7 @@ public class CommentServiceImpl {
             return null;
         }
     }
-    //删除comment
-    public Boolean DeleteComment(Long id){
-        QueryWrapper<Comment> qw = new QueryWrapper<>();
-        qw.eq("id",id);
-        return commentMapper.delete(qw) ==1;
-    }
+
     //根据blogid获取comments
     public List<Comment> GetComments(Long blogid){
         QueryWrapper<Comment> qw=new QueryWrapper<>();
@@ -38,8 +33,19 @@ public class CommentServiceImpl {
     }
     public List<Comment> GetCommentByCommentId(Long commentid){//根据commentid获取评论
         QueryWrapper<Comment> qw=new QueryWrapper<>();
-        qw.eq("commentid",commentid);
+        qw.eq("id",commentid);
         return commentMapper.selectList(qw);
     }
 
+    //删除comment
+    public Boolean DeleteCommentByCommtId(Long id){
+        QueryWrapper<Comment> qw = new QueryWrapper<>();
+        qw.eq("id",id);
+        return commentMapper.delete(qw) ==1;
+    }
+//    public Boolean DeleteCommentsByBlogId(Long blogid){
+//        QueryWrapper<Comment> qw = new QueryWrapper<>();
+//        qw.eq("id",blogid);
+//        return commentMapper.delete(qw) ==1;
+//    }
 }

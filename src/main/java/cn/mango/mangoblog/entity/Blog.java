@@ -17,6 +17,7 @@ public class Blog {
     private String description;
     @TableField(updateStrategy= FieldStrategy.IGNORED)
     private String content;
+    private Long count;//总点击量
     public Blog(Long id, Long authorid, Integer statusauthor, Integer statusadmin, String description, String content) {
         this.id = id;
         this.authorid = authorid;

@@ -40,15 +40,15 @@ public class BlogServiceImpl {
         return new ResultWrapper<>(result);
     }
 
-    public ResultWrapper<Blog> GetOpenBlogById(Long id) {
+    public Blog GetOpenBlogById(Long id) {
         //查询构造器
         QueryWrapper<Blog> qw = new QueryWrapper<>();
         qw.eq("id", id).eq("statusauthor",1).eq("statusadmin",1);
         List<Blog> result = blogMapper.selectList(qw);
         if (result.isEmpty()) {
-            return new ResultWrapper<>(400, "Not found", null);
+            return null;
         }
-        return new ResultWrapper<>(result.get(0));
+        return result.get(0);
     }
 
     public ResultWrapper<List<Blog>> GetAllBlogsByAuthorId(Long author_id){
@@ -129,6 +129,12 @@ public class BlogServiceImpl {
                 .set(status_admin != null, "statusadmin", status_admin);
 
         return blogMapper.update(null, blogUpdateWrapper) == 1;
+    }
+    public void update_blog_count(Long blog_id) {
+        UpdateWrapper<Blog> wrapper = new UpdateWrapper<>();
+        wrapper.eq("id", blog_id);
+        wrapper.setSql("'commentcount' = 'commentcount' + 1");
+        blogMapper.update(null,wrapper);
     }
     //仅查询blog的作者
     public Long getBlogAuthor(Long blog_id){

@@ -20,14 +20,45 @@ public class UserController {
     @Autowired
     private UserMapper userMapper;
 
+
+
+    @Autowired
+    private UserServiceImpl userService;
+    @GetMapping("/user/{id}")
+    public ResultWrapper<User> getUser(@PathVariable(value = "id")Long id){
+        User user=userService.getUser(id);
+        if(user==null){
+            return new ResultWrapper<>(400,"Not found",null);
+        }
+        user.setPassword(null);
+        return new ResultWrapper<>(user);
+    }
+    @PostMapping("/me")//用户查看自己的信息
+    public ResultWrapper<User> getMySelf(@RequestHeader(value = "authorization", required = true) String token) {
+        ResultWrapper<VerifyResult> verifyResultResultWrapper = TokenUtils.Verify(token);
+        if (verifyResultResultWrapper.getCode() != 0)
+            return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
+        Long user_id = verifyResultResultWrapper.getData().getId();
+
+        List<User> UserList = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getId, user_id));
+        if (UserList.isEmpty()) {
+            return new ResultWrapper<>(2, "Invalid token", null);
+        }
+        User user = UserList.get(0);
+        user.setPassword(null);
+        return new ResultWrapper<>(0, "Success", user);
+    }
     @GetMapping("/users")
     public List<User> getUsers(ModelMap map) {
         return userMapper.selectList(null);
     }
-
-    @Autowired
-    private UserServiceImpl userService;
-
+    @GetMapping("/getusers")//根据关键词搜索user
+    public ResultWrapper<List<User>> getUsers(@RequestParam(value = "nickname")String nickname){
+        List<User> userList=userMapper.GetUserByNickName(nickname);
+        if(userList.isEmpty())
+            return new ResultWrapper<>(400,"Not found",null);
+        else return new ResultWrapper<>(0,"Success",userList);
+    }
     @PostMapping("/register")
     public ResultWrapper<Long> registerUser(@RequestBody User user) {
         return userService.registerUser(user);
@@ -45,15 +76,7 @@ public class UserController {
         }
         return userService.login_check(loginMessage.id, loginMessage.password);
     }
-    @GetMapping("/user/{id}")
-    public ResultWrapper<User> getUser(@PathVariable(value = "id")Long id){
-        User user=userService.getUser(id);
-        if(user==null){
-            return new ResultWrapper<>(400,"Not found",null);
-        }
-        user.setPassword(null);
-        return new ResultWrapper<>(user);
-    }
+
     @PostMapping("/upgrade")
     public ResultWrapper<Long> UpgradeUser(@RequestParam(value = "id", required = true) Long id, @RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
@@ -67,30 +90,6 @@ public class UserController {
             return new ResultWrapper<>(0, "Success", null);
         } else return new ResultWrapper<>(400, "Invalid id", null);
     }
-
-    @PostMapping("/me")//用户查看自己的信息
-    public ResultWrapper<User> getMySelf(@RequestHeader(value = "authorization", required = true) String token) {
-        ResultWrapper<VerifyResult> verifyResultResultWrapper = TokenUtils.Verify(token);
-        if (verifyResultResultWrapper.getCode() != 0)
-            return new ResultWrapper<>(verifyResultResultWrapper.getCode(), verifyResultResultWrapper.getMessage(), null);
-        Long user_id = verifyResultResultWrapper.getData().getId();
-
-        List<User> UserList = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getId, user_id));
-        if (UserList.isEmpty()) {
-            return new ResultWrapper<>(2, "Invalid token", null);
-        }
-        User user = UserList.get(0);
-        user.setPassword(null);
-        return new ResultWrapper<>(0, "Success", user);
-    }
-
-    @GetMapping("/getusers")//根据关键词搜索user
-    public ResultWrapper<List<User>> getUsers(@RequestParam(value = "nickname")String nickname){
-        List<User> userList=userMapper.GetUserByNickName(nickname);
-        if(userList.isEmpty())
-        return new ResultWrapper<>(400,"Not found",null);
-        else return new ResultWrapper<>(0,"Success",userList);
-    }
     @PostMapping("/degrade")//实现管理员权限的收回
     public ResultWrapper<Long> DegradeUser(@RequestParam(value = "id", required = true) Long id, @RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
@@ -103,5 +102,16 @@ public class UserController {
         if (userService.UpdateUserPrivilege(id, 0)) {
             return new ResultWrapper<>(0, "Success", null);
         } else return new ResultWrapper<>(400, "Invalid id", null);
+    }
+    @PostMapping("/profile/edit")
+    public ResultWrapper<Boolean> EditUserProfile(@RequestBody User user,@RequestHeader(value = "authorization")String token){
+        ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
+        VerifyResult verifyresultData = verifyResult.getData();
+        if (verifyresultData == null)
+            return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), false);
+        user.setId(verifyresultData.getId());//设置要更新的user的id为token中的id
+        if(userService.update_user_profile(user))
+            return new ResultWrapper<>(true);
+        else return new ResultWrapper<>(500,"数据更新失败",false);
     }
 }

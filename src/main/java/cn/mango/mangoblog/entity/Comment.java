@@ -10,7 +10,7 @@ import lombok.Data;
 
 
     @Data
-    @TableName(value = "commoents")
+    @TableName(value = "comments")
     public class Comment {
         @TableId(type = IdType.AUTO)
         private Long id;
