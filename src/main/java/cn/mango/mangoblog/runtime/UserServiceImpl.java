@@ -20,15 +20,14 @@ public class UserServiceImpl{
     @Autowired
     private UserMapper userMapper;
 
-    public ResultWrapper<User> getUser(Long id){
+    public User getUser(Long id){
         QueryWrapper<User> qw = new QueryWrapper<>();
         qw.eq("id", id);
         List<User> result = userMapper.selectList(qw);
         if (result.isEmpty()){
-            return new ResultWrapper<>(400, "Not found", null);
+            return null;
         }
-
-        return new ResultWrapper<>(result.get(0));
+        return result.get(0);
     }
 
     public ResultWrapper<Boolean> addUser(User user){

@@ -45,7 +45,15 @@ public class UserController {
         }
         return userService.login_check(loginMessage.id, loginMessage.password);
     }
-
+    @GetMapping("/user")
+    public ResultWrapper<User> getUser(@RequestParam(value = "id")Long id){
+        User user=userService.getUser(id);
+        if(user==null){
+            return new ResultWrapper<>(400,"Not found",null);
+        }
+        user.setPassword(null);
+        return new ResultWrapper<>(user);
+    }
     @PostMapping("/upgrade")
     public ResultWrapper<Long> UpgradeUser(@RequestParam(value = "id", required = true) Long id, @RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果

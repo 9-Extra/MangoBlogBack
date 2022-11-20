@@ -35,7 +35,10 @@ public class BlogController {
     public ResultWrapper<Blog> GetOpenBlog(@RequestParam(value = "id", required = true) Long id) {
         return blogService.GetOpenBlogById(id);
     }
-
+    @GetMapping("/open/blogs")//查看所有已公开
+    public ResultWrapper<List<Blog>> GetOpenBlogs(){
+        return new ResultWrapper<>(blogService.GetBlogsByStauts(1,1));
+    }
     @GetMapping("/private/blogs")//作者查看自己的所有blog
     public ResultWrapper<List<Blog>> GetPrivateBlogs(@RequestHeader(value = "authorization", required = true) String token) {
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果

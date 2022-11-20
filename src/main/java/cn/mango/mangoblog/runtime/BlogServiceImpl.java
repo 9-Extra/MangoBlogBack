@@ -19,15 +19,15 @@ public class BlogServiceImpl {
     private  BlogMapper blogMapper;
 
     //获取Blog
-    public ResultWrapper<Blog> GetBlogById(Long id) {
+    public Blog GetBlogById(Long id) {
         //查询构造器
         QueryWrapper<Blog> qw = new QueryWrapper<>();
         qw.eq("id", id).ne("statusauthor",-1);
         List<Blog> result = blogMapper.selectList(qw);
         if (result.isEmpty()) {
-            return new ResultWrapper<>(400, "Not found", null);
+            return null;
         }
-        return new ResultWrapper<>(result.get(0));
+        return result.get(0);
     }
     public ResultWrapper<Blog> GetBlogByIdAndAuthorId(Long id,  Long author_id) {
         //查询构造器
