@@ -11,7 +11,7 @@ public class Blog {
 
     private Long authorid;
     private Integer statusauthor;//-1白板，0非公开，1公开
-    private Integer statusadmin;//-1审核中，0审核通过，1失败
+    private Integer statusadmin;//-1审核中，0不通过，1通过
     //0 new&&!save
     @TableField(updateStrategy= FieldStrategy.IGNORED)
     private String description;

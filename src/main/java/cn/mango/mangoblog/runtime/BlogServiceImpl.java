@@ -23,7 +23,7 @@ public class BlogServiceImpl {
     public ResultWrapper<Blog> GetBlogById(Long id) {
         //查询构造器
         QueryWrapper<Blog> qw = new QueryWrapper<>();
-        qw.eq("id", id);
+        qw.eq("id", id).ne("statusauthor",-1);
         List<Blog> result = blogMapper.selectList(qw);
         if (result.isEmpty()) {
             return new ResultWrapper<>(400, "Not found", null);
@@ -62,16 +62,18 @@ public class BlogServiceImpl {
         return new ResultWrapper<>(result);
     }
 
-//    public ResultWrapper<List<Blog>> GetOpenBlogsByAuthorId(Long author_id){
-//        QueryWrapper<Blog> qw = new QueryWrapper<>();
-//        qw.eq("authorid",author_id).eq("status",2);
-//        List<Blog> result = blogMapper.selectList(qw);
-//        if (result.isEmpty()) {
-//            return new ResultWrapper<>(400, "Not found", null);
-//        }
-//        return new ResultWrapper<>(result);
-//    }
 
+    public List<Blog> GetBlogsByStauts( Integer statusauthor,Integer statusadmin) {//管理员获取审核不通过/未审核的blog用
+    QueryWrapper<Blog> qw = new QueryWrapper<>();
+    qw.eq("statusauthor", statusauthor).eq("statusadmin",statusadmin);
+    return blogMapper.selectList(qw);
+    }
+
+    public List<Blog> GetBlogsByStautsAdmin( Integer statusadmin) {//管理员获取审核通过的blog用
+        QueryWrapper<Blog> qw = new QueryWrapper<>();
+        qw.eq("statusadmin",statusadmin);
+        return blogMapper.selectList(qw);
+    }
 
     public List<Blog> GetBlogsByAuthorIdAndStauts(Long author_id, Integer statusauthor,Integer statusadmin) {
         QueryWrapper<Blog> qw = new QueryWrapper<>();
@@ -108,9 +110,20 @@ public class BlogServiceImpl {
 
 
     //以管理员权限，不修改博客内容，仅修改状态
-    public boolean upDateBlogStatusAdmin(Long blog_id, Integer statusadmin) {
+//    public boolean UpdateBlogStatusAdmin(Long blog_id, Integer statusadmin) {
+//        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
+//        blogUpdateWrapper.eq("id", blog_id).set("statusadmin", statusadmin);//管理员只能在用户决定公开后才能通过审核
+//        return blogMapper.update(null, blogUpdateWrapper) == 1;
+//    }
+    public boolean AgreeBlogAdmin(Long blog_id, Integer statusadmin) {
         UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
-        blogUpdateWrapper.eq("id", blog_id).set("statusadmin", statusadmin);
+        blogUpdateWrapper.eq("id", blog_id).eq("statusauthor",1).set("statusadmin", statusadmin);//管理员只能在用户决定公开后才能通过审核
+        return blogMapper.update(null, blogUpdateWrapper) == 1;
+    }
+
+    public boolean RevokeBlogAdmin(Long blog_id, Integer statusadmin) {
+        UpdateWrapper<Blog> blogUpdateWrapper = new UpdateWrapper<>();
+        blogUpdateWrapper.eq("id", blog_id).eq("statusadmin",1).set("statusadmin", statusadmin);//无需用户同意，只要是已通过的blog都能进行撤回
         return blogMapper.update(null, blogUpdateWrapper) == 1;
     }
 

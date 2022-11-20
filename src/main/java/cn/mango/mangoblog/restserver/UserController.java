@@ -76,11 +76,11 @@ public class UserController {
         return new ResultWrapper<>(0, "Success", user);
     }
 
-    @PostMapping("/getusers")
+    @GetMapping("/getusers")//根据关键词搜索user
     public ResultWrapper<List<User>> getUsers(@RequestParam(value = "nickname")String nickname){
         List<User> userList=userMapper.GetUserByNickName(nickname);
         if(userList.isEmpty())
-        return new ResultWrapper(400,"Not found",null);
+        return new ResultWrapper<>(400,"Not found",null);
         else return new ResultWrapper<>(0,"Success",userList);
     }
     @PostMapping("/degrade")//实现管理员权限的收回
