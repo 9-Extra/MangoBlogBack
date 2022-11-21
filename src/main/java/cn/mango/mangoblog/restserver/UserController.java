@@ -104,19 +104,38 @@ public class UserController {
             return new ResultWrapper<>(0, "Success", null);
         } else return new ResultWrapper<>(400, "Invalid id", null);
     }
-    @PostMapping("/profile/edit")//用户修改自己的个人资料
-    public ResultWrapper<Boolean> EditUserProfile(@RequestBody User user,@RequestHeader(value = "authorization")String token){
+    @PostMapping("/nickname/edit")//用户修改自己的个人资料
+    public ResultWrapper<Boolean> EditUserNickname(@RequestBody User user,@RequestHeader(value = "authorization")String token){
+        if(user.getNickname()==null||user.getNickname().length()==0){
+            return new ResultWrapper<>(3,"昵称不能为空",false);
+        }
+        String nickname= user.getNickname();
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
         VerifyResult verifyresultData = verifyResult.getData();
         if (verifyresultData == null)
             return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), false);
         user.setId(verifyresultData.getId());//设置要更新的user的id为token中的id
-        if(userService.update_user_profile(user))
+        if(userService.update_user_nickname(user))
+            return new ResultWrapper<>(true);
+        else return new ResultWrapper<>(500,"数据更新失败",false);
+    }
+
+    @PostMapping("/age/edit")//用户修改自己的个人资料
+    public ResultWrapper<Boolean> EditUserAge(@RequestBody User user,@RequestHeader(value = "authorization")String token){
+        ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
+        VerifyResult verifyresultData = verifyResult.getData();
+        if (verifyresultData == null)
+            return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), false);
+        user.setId(verifyresultData.getId());//设置要更新的user的id为token中的id
+        if(userService.update_user_age(user))
             return new ResultWrapper<>(true);
         else return new ResultWrapper<>(500,"数据更新失败",false);
     }
     @PostMapping("/password/edit")//用户修改自己的密码
     public ResultWrapper<Boolean> EditUserPassword(@RequestBody Map<String,String> Map, @RequestHeader(value = "authorization")String token){
+        if(Map.get("new_password")==null||Map.get("new_password").length()==0||Map.get("old_password")==null||Map.get("old_password").length()==0){
+            return new ResultWrapper<>(3,"输入的原密码或新密码不能为空",false);
+        }
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
         VerifyResult verifyresultData = verifyResult.getData();
         if (verifyresultData == null)

@@ -79,10 +79,15 @@ public class UserServiceImpl{
         updateWrapper.eq("id",id).set("privilege",privilege);
         return userMapper.update(null,updateWrapper)==1;
     }
-
-    public Boolean update_user_profile(User user){//修改用户的个人信息
+    public Boolean update_user_age(User user){//修改用户的个人信息
         UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
-        updateWrapper.eq("id",user.getId()).set("age",user.getAge()).set("nickname",user.getNickname());
+        updateWrapper.eq("id",user.getId()).set("age",user.getAge());
+        return userMapper.update(null,updateWrapper)==1;
+    }
+
+    public Boolean update_user_nickname(User user){//修改用户的个人信息
+        UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.eq("id",user.getId()).set("nickname",user.getNickname());
         return userMapper.update(null,updateWrapper)==1;
     }
 
