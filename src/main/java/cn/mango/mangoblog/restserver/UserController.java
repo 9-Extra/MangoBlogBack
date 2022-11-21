@@ -17,19 +17,15 @@ import java.util.Map;
 
 @RestController
 public class UserController {
-
     @Autowired
     private UserMapper userMapper;
-
-
-
     @Autowired
     private UserServiceImpl userService;
     @GetMapping("/user/{id}")
-    public ResultWrapper<User> getUser(@PathVariable(value = "id")Long id){
+    public ResultWrapper<User> getUser(@PathVariable(required = true, value = "id")Long id){
         User user=userService.getUser(id);
         if(user==null){
-            return new ResultWrapper<>(400,"Not found",null);
+            return new ResultWrapper<>(400,"用户不存在",null);
         }
         user.setPassword(null);
         return new ResultWrapper<>(user);
@@ -49,10 +45,7 @@ public class UserController {
         user.setPassword(null);
         return new ResultWrapper<>(0, "Success", user);
     }
-    @GetMapping("/users")
-    public List<User> getUsers(ModelMap map) {
-        return userMapper.selectList(null);
-    }
+
     @GetMapping("/getusers")//根据关键词搜索user
     public ResultWrapper<List<User>> getUsers(@RequestParam(value = "nickname")String nickname){
         List<User> userList=userMapper.GetUserByNickName(nickname);
