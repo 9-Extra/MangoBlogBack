@@ -115,7 +115,7 @@ public class BlogController {
                 List<Blog> result = blogService.GetBlogsByAuthorIdAndStauts(user_id, -1, -1);//查询该用户是否有空白blog
                 if (result.isEmpty()) {
                     //创建空白blog
-                    Blog blog = new Blog(0L, user_id, -1, -1, "默认描述", "# 请在此输入内容");
+                    Blog blog = new Blog(0L, user_id, -1, -1, "默认描述", "# 请在此输入内容", 0);
                     Long id = blogService.insertBlog(blog);
                     if (id == null) {
                         return new ResultWrapper<>(500, "创建博客失败，这怎么可能", null);

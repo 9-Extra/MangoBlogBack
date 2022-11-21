@@ -18,13 +18,14 @@ public class Blog {
     @TableField(updateStrategy= FieldStrategy.IGNORED)
     private String content;
     private Long count;//总点击量
-    public Blog(Long id, Long authorid, Integer statusauthor, Integer statusadmin, String description, String content) {
+    public Blog(Long id, Long authorid, Integer statusauthor, Integer statusadmin, String description, String content, long count) {
         this.id = id;
         this.authorid = authorid;
         this.statusauthor = statusauthor;
         this.statusadmin = statusadmin;
         this.description = description;
         this.content = content;
+        this.count = count;
     }
 
 
