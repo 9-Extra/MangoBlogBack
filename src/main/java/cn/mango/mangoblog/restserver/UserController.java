@@ -13,6 +13,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -103,7 +104,7 @@ public class UserController {
             return new ResultWrapper<>(0, "Success", null);
         } else return new ResultWrapper<>(400, "Invalid id", null);
     }
-    @PostMapping("/profile/edit")
+    @PostMapping("/profile/edit")//用户修改自己的个人资料
     public ResultWrapper<Boolean> EditUserProfile(@RequestBody User user,@RequestHeader(value = "authorization")String token){
         ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
         VerifyResult verifyresultData = verifyResult.getData();
@@ -113,5 +114,16 @@ public class UserController {
         if(userService.update_user_profile(user))
             return new ResultWrapper<>(true);
         else return new ResultWrapper<>(500,"数据更新失败",false);
+    }
+    @PostMapping("/password/edit")//用户修改自己的密码
+    public ResultWrapper<Boolean> EditUserPassword(@RequestBody Map<String,String> Map, @RequestHeader(value = "authorization")String token){
+        ResultWrapper<VerifyResult> verifyResult = TokenUtils.Verify(token);//获取验证结果
+        VerifyResult verifyresultData = verifyResult.getData();
+        if (verifyresultData == null)
+            return new ResultWrapper<>(verifyResult.getCode(), verifyResult.getMessage(), false);
+        if(userService.update_user_password(verifyresultData.getId(), Map.get("new_password"), Map.get("old_password"))){
+            return new ResultWrapper<>(true);
+        }
+        return new ResultWrapper<>(500,"旧密码错误",false);
     }
 }

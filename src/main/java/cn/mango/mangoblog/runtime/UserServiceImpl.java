@@ -30,6 +30,8 @@ public class UserServiceImpl{
         return result.get(0);
     }
 
+
+
     public ResultWrapper<Boolean> addUser(User user){
         QueryWrapper<User> qw = new QueryWrapper<>();
         qw.eq("id", user.getId());
@@ -81,6 +83,12 @@ public class UserServiceImpl{
     public Boolean update_user_profile(User user){//修改用户的个人信息
         UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
         updateWrapper.eq("id",user.getId()).set("age",user.getAge()).set("nickname",user.getNickname());
+        return userMapper.update(null,updateWrapper)==1;
+    }
+
+    public Boolean update_user_password(Long id,String new_password,String old_password){//修改用户的密码
+        UpdateWrapper<User> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.eq("id",id).eq("password",old_password).set("password",new_password);
         return userMapper.update(null,updateWrapper)==1;
     }
 
